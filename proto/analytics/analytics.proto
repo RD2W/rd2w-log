@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package analytics;
+option go_package = "github.com/rd2w/rd2w-log/pkg/proto/analytics";
+
+import "google/protobuf/timestamp.proto";
+
+service AnalyticsService {
+  rpc GetStatistics(GetStatisticsRequest) returns (GetStatisticsResponse);
+  rpc GetActivityHeatmap(GetActivityHeatmapRequest) returns (GetActivityHeatmapResponse);
+  rpc GenerateReports(GenerateReportsRequest) returns (GenerateReportsResponse);
+  rpc GetExtendedStatistics(GetExtendedStatisticsRequest) returns (GetExtendedStatisticsResponse);
+}
+
+message GetStatisticsRequest {
+  string user_id = 1;
+  google.protobuf.Timestamp date_from = 2;
+  google.protobuf.Timestamp date_to = 3;
+}
+
+message GetStatisticsResponse {
+  int32 total_qso = 1;
+  map<string, int32> qso_by_band = 2;
+  map<string, int32> qso_by_mode = 3;
+  map<string, int32> qso_by_continent = 4;
+  repeated int32 last_30_days = 5;
+  int32 unique_countries = 6;
+  int32 unique_grids = 7;
+}
+
+message GetExtendedStatisticsRequest {
+  string user_id = 1;
+  google.protobuf.Timestamp date_from = 2;
+  google.protobuf.Timestamp date_to = 3;
+  string period = 4;
+}
+
+message GrowthMetrics {
+  double total_qso_growth = 1;
+  int32 new_countries = 2;
+  int32 new_grids = 3;
+  int32 active_days = 4;
+}
+
+message ContinentStatistics {
+  string continent = 1;
+  int32 count = 2;
+  double percentage = 3;
+}
+
+message GetExtendedStatisticsResponse {
+  GetStatisticsResponse basic_stats = 1;
+  GrowthMetrics growth = 2;
+  repeated ContinentStatistics continents = 3;
+  string period = 4;
+}
+
+message GetActivityHeatmapRequest {
+  string user_id = 1;
+  string period = 2;
+}
+
+message ActivityPoint {
+  string hour = 1;
+  string band = 2;
+  int32 count = 3;
+}
+
+message GetActivityHeatmapResponse {
+  repeated ActivityPoint activity = 1;
+  string period = 2;
+}
+
+message GenerateReportsRequest {
+  string user_id = 1;
+  string report_type = 2;
+  google.protobuf.Timestamp date_from = 3;
+  google.protobuf.Timestamp date_to = 4;
+  string format = 5;
+}
+
+message GenerateReportsResponse {
+  bytes report_data = 1;
+  string report_type = 2;
+  string filename = 3;
+}

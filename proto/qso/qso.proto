@@ -1,0 +1,145 @@
+syntax = "proto3";
+
+package qso;
+option go_package = "github.com/rd2w/rd2w-log/pkg/proto/qso";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+service QSOService {
+  rpc CreateQSO(CreateQSORequest) returns (CreateQSOResponse);
+  rpc GetQSO(GetQSORequest) returns (GetQSOResponse);
+  rpc UpdateQSO(UpdateQSORequest) returns (UpdateQSOResponse);
+  rpc DeleteQSO(DeleteQSORequest) returns (google.protobuf.Empty);
+  rpc ListQSOs(ListQSOsRequest) returns (stream QSO);
+  rpc SearchQSOs(SearchQSOsRequest) returns (stream QSO);
+  rpc ImportADIF(ImportADIFRequest) returns (ImportADIFResponse);
+  rpc ExportADIF(ExportADIFRequest) returns (ExportADIFResponse);
+}
+
+message QSO {
+  string id = 1;
+  string user_id = 2;
+  string callsign = 3;
+  google.protobuf.Timestamp time_on = 4;
+  google.protobuf.Timestamp time_off = 5;
+  string frequency = 6;
+  string band = 7;
+  string mode = 8;
+  string rst_sent = 9;
+  string rst_received = 10;
+  string grid_square = 11;
+  string operator = 12;
+  string station_callsign = 13;
+  string contest = 14;
+  string notes = 15;
+  QSLInfo qsl = 16;
+  google.protobuf.Timestamp created_at = 17;
+  google.protobuf.Timestamp updated_at = 18;
+}
+
+message QSLInfo {
+  bool sent = 1;
+  bool received = 2;
+  string sent_via = 3;
+  string received_via = 4;
+  google.protobuf.Timestamp sent_date = 5;
+  google.protobuf.Timestamp received_date = 6;
+}
+
+message CreateQSORequest {
+  string user_id = 1;
+  string callsign = 2;
+  google.protobuf.Timestamp time_on = 3;
+  google.protobuf.Timestamp time_off = 4;
+  string frequency = 5;
+  string band = 6;
+  string mode = 7;
+  string rst_sent = 8;
+  string rst_received = 9;
+  string grid_square = 10;
+  string operator = 11;
+  string station_callsign = 12;
+  string contest = 13;
+  string notes = 14;
+  QSLInfo qsl = 15;
+}
+
+message CreateQSOResponse {
+  QSO qso = 1;
+}
+
+message GetQSORequest {
+  string id = 1;
+  string user_id = 2;
+}
+
+message GetQSOResponse {
+  QSO qso = 1;
+}
+
+message UpdateQSORequest {
+  string id = 1;
+  string user_id = 2;
+  string callsign = 3;
+  google.protobuf.Timestamp time_on = 4;
+  google.protobuf.Timestamp time_off = 5;
+  string frequency = 6;
+  string band = 7;
+  string mode = 8;
+  string rst_sent = 9;
+  string rst_received = 10;
+  string grid_square = 11;
+  string operator = 12;
+  string station_callsign = 13;
+  string contest = 14;
+  string notes = 15;
+  QSLInfo qsl = 16;
+}
+
+message UpdateQSOResponse {
+  QSO qso = 1;
+}
+
+message DeleteQSORequest {
+  string id = 1;
+  string user_id = 2;
+}
+
+message ListQSOsRequest {
+  string user_id = 1;
+  int32 page = 2;
+  int32 limit = 3;
+  string band = 4;
+  string mode = 5;
+  string callsign = 6;
+  google.protobuf.Timestamp date_from = 7;
+  google.protobuf.Timestamp date_to = 8;
+}
+
+message SearchQSOsRequest {
+  string user_id = 1;
+  string query = 2;
+  int32 limit = 3;
+}
+
+message ImportADIFRequest {
+  string user_id = 1;
+  bytes adif_data = 2;
+}
+
+message ImportADIFResponse {
+  int32 imported_count = 1;
+  repeated string errors = 2;
+}
+
+message ExportADIFRequest {
+  string user_id = 1;
+  google.protobuf.Timestamp date_from = 2;
+  google.protobuf.Timestamp date_to = 3;
+}
+
+message ExportADIFResponse {
+  bytes adif_data = 1;
+  string filename = 2;
+}
