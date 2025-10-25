@@ -13,6 +13,9 @@
 git clone https://github.com/rd2w/rd2w-log.git
 cd rd2w-log
 
+# Генерация protobuf кода
+make proto
+
 # Запуск в Docker
 docker-compose up -d
 
@@ -25,6 +28,7 @@ curl http://localhost:8080/api/v1/health
 - [📋 Техническое задание](docs/specification.md) - полное описание проекта и архитектуры
 - [🔗 API Reference](docs/api-reference.md) - документация по API
 - [🚀 Deployment Guide](docs/deployment.md) - инструкции по развертыванию
+- [💡 API Examples](docs/examples/api-examples.md) - примеры использования API
 
 ## 🏗️ Архитектура
 
@@ -51,6 +55,9 @@ curl http://localhost:8080/api/v1/health
 - ✅ Базовая статистика и аналитика
 - ✅ Аутентификация и авторизация
 - ✅ Управление станциями
+- ✅ Расширенная аналитика с метриками роста
+- ✅ Генерация отчетов (PDF, CSV, HTML)
+- ✅ Health checks и мониторинг
 
 ## 🔮 Планы развития
 
@@ -58,6 +65,27 @@ curl http://localhost:8080/api/v1/health
 - [ ] Расширенная аналитика (DXCC, awards)
 - [ ] Real-time уведомления
 - [ ] Мобильное приложение
+
+## 📚 API Документация
+
+### REST API
+- [Полная документация API](docs/api-reference.md)
+- Базовый URL: `http://localhost:8080/api/v1`
+- Формат: JSON
+- Аутентификация: JWT Bearer Token
+
+### gRPC API
+- [Protobuf спецификации](docs/specification.md#protobuf-спецификации)
+- Порт: 50051 (Auth), 50052 (QSO), 50053 (Analytics)
+
+### Health Checks
+```bash
+# HTTP health check
+curl http://localhost:8080/health
+
+# gRPC health check
+grpcurl -plaintext localhost:50051 grpc.health.v1.Health/Check
+```
 
 ## 🤝 Участие в разработке
 

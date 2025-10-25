@@ -22,6 +22,7 @@ We love new ideas! For feature requests:
 2. **Clone** your fork:
    ```bash
    git clone https://github.com/RD2W/rd2w-log.git
+   cd rd2w-log
    ```
 3. **Create a feature branch**:
    ```bash
@@ -152,8 +153,8 @@ protoc --go_out=. --go-grpc_out=. proto/**/*.proto
 
 ## 📞 Getting Help
 
-- Create a [GitHub Issue](https://github.com/rd2w/ham-radio-qso-journal/issues)
-- Join our [Discussions](https://github.com/rd2w/ham-radio-qso-journal/discussions)
+- Create a [GitHub Issue](https://github.com/rd2w/rd2w-log/issues)
+- Join our [Discussions](https://github.com/rd2w/rd2w-log/discussions)
 - Check existing documentation in `/docs`
 
 ---

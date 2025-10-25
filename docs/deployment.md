@@ -6,12 +6,16 @@
 - Docker 20.10+
 - Docker Compose 2.0+
 - Go 1.25.3+ (опционально для разработки)
+- protoc 3.0+ (для генерации protobuf кода)
 
 ### Быстрый старт
 ```bash
 # Клонирование репозитория
 git clone https://github.com/rd2w/rd2w-log.git
-cd ham-radio-qso-journal
+cd rd2w-log
+
+# Генерация protobuf кода
+make proto
 
 # Запуск всех сервисов
 docker-compose up -d
@@ -26,10 +30,64 @@ curl http://localhost:8080/api/v1/health
 - **Redis**: http://localhost:6379
 - **Prometheus**: http://localhost:9090
 - **Grafana**: http://localhost:3000
+- **Auth Service gRPC**: http://localhost:50051
+- **QSO Service gRPC**: http://localhost:50052
+- **Analytics Service gRPC**: http://localhost:50053
+
+## Генерация Protobuf кода
+
+### Предварительные требования
+```bash
+# Установка protoc (Linux/macOS)
+# Ubuntu/Debian
+sudo apt-get install protobuf-compiler
+
+# macOS
+brew install protobuf
+
+# Установка Go плагинов
+go install google.golang.org/protobuf/cmd/protoc-gen-go@vlatest
+go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+```
+
+### Генерация кода
+```bash
+# Генерация всех protobuf файлов
+make proto
+
+# Или вручную
+./scripts/generate-proto.sh
+```
+
+### Структура protobuf файлов
+```
+proto/
+├── auth/
+│   └── auth.proto
+├── qso/
+│   └── qso.proto
+├── analytics/
+│   └── analytics.proto
+├── common/
+│   └── common.proto
+└── health/
+    └── health.proto
+```
 
 ## Конфигурация
 
 ### Environment Variables
+
+#### API Gateway
+```bash
+API_GATEWAY_HTTP_PORT=8080
+API_GATEWAY_GRPC_PORT=50051
+AUTH_SERVICE_URL=auth-service:50051
+QSO_SERVICE_URL=qso-service:50052
+ANALYTICS_SERVICE_URL=analytics-service:50053
+JWT_SECRET=your-jwt-secret-key-change-in-production
+CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+```
 
 #### Auth Service
 ```bash
@@ -40,6 +98,7 @@ AUTH_DB_USER=hamuser
 AUTH_DB_PASSWORD=hampass
 JWT_SECRET=your-jwt-secret-key
 REDIS_URL=redis://redis:6379
+AUTH_SERVICE_PORT=50051
 ```
 
 #### QSO Service
@@ -50,6 +109,7 @@ QSO_DB_NAME=hamradio
 QSO_DB_USER=hamuser
 QSO_DB_PASSWORD=hampass
 REDIS_URL=redis://redis:6379
+QSO_SERVICE_PORT=50052
 ```
 
 #### Analytics Service
@@ -59,6 +119,14 @@ ANALYTICS_DB_PORT=5432
 ANALYTICS_DB_NAME=hamradio
 ANALYTICS_DB_USER=hamuser
 ANALYTICS_DB_PASSWORD=hampass
+ANALYTICS_SERVICE_PORT=50053
+```
+
+#### Общие настройки
+```bash
+LOG_LEVEL=info
+ENVIRONMENT=development
+APP_NAME=rd2w-log
 ```
 
 ### Docker Compose Configuration
@@ -104,6 +172,7 @@ services:
       - AUTH_DB_USER=hamuser
       - AUTH_DB_PASSWORD=hampass
       - JWT_SECRET=your-secret-key-change-in-production
+      - AUTH_SERVICE_PORT=50051
     depends_on:
       postgres:
         condition: service_healthy
@@ -120,6 +189,7 @@ services:
       - QSO_DB_HOST=postgres
       - QSO_DB_USER=hamuser
       - QSO_DB_PASSWORD=hampass
+      - QSO_SERVICE_PORT=50052
     depends_on:
       postgres:
         condition: service_healthy
@@ -136,6 +206,7 @@ services:
       - ANALYTICS_DB_HOST=postgres
       - ANALYTICS_DB_USER=hamuser
       - ANALYTICS_DB_PASSWORD=hampass
+      - ANALYTICS_SERVICE_PORT=50053
     depends_on:
       postgres:
         condition: service_healthy
@@ -150,6 +221,7 @@ services:
       - AUTH_SERVICE_URL=auth-service:50051
       - QSO_SERVICE_URL=qso-service:50052
       - ANALYTICS_SERVICE_URL=analytics-service:50053
+      - API_GATEWAY_HTTP_PORT=8080
     depends_on:
       - auth-service
       - qso-service
@@ -189,6 +261,7 @@ volumes:
 - External PostgreSQL database
 - SSL certificates
 - Load balancer
+- Redis cluster
 
 ### Kubernetes Deployment Example
 
@@ -223,13 +296,48 @@ spec:
             secretKeyRef:
               name: auth-secret
               key: jwt-secret
+        livenessProbe:
+          exec:
+            command: ["grpc_health_probe", "-addr=:50051"]
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        readinessProbe:
+          exec:
+            command: ["grpc_health_probe", "-addr=:50051"]
+          initialDelaySeconds: 5
+          periodSeconds: 2
 ```
 
 ### Health Checks
 
 Все сервисы предоставляют health endpoints:
-- gRPC: `grpc.health.v1.Health/Check`
-- HTTP: `/health`
+
+#### gRPC Health Checks
+```bash
+# Проверка здоровья через grpcurl
+grpcurl -plaintext localhost:50051 grpc.health.v1.Health/Check
+
+# Проверка конкретного сервиса
+grpcurl -plaintext -d '{"service": "auth.AuthService"}' localhost:50051 grpc.health.v1.Health/Check
+
+# Использование grpc_health_probe
+grpc_health_probe -addr=localhost:50051
+```
+
+#### HTTP Health Checks
+```bash
+# Основной health check
+curl http://localhost:8080/health
+
+# Детальная проверка
+curl http://localhost:8080/health/detailed
+
+# Проверка готовности
+curl http://localhost:8080/health/ready
+
+# Проверка живучести
+curl http://localhost:8080/health/live
+```
 
 ### Мониторинг
 
@@ -248,6 +356,16 @@ scrape_configs:
     static_configs:
       - targets: ['qso-service:50052']
     metrics_path: /metrics
+
+  - job_name: 'analytics-service'
+    static_configs:
+      - targets: ['analytics-service:50053']
+    metrics_path: /metrics
+
+  - job_name: 'api-gateway'
+    static_configs:
+      - targets: ['api-gateway:8080']
+    metrics_path: /metrics
 ```
 
 #### Grafana Dashboards
@@ -261,6 +379,9 @@ docker-compose run --rm migrate -path=/migrations -database "$DB_URL" up
 
 # Откат миграций
 docker-compose run --rm migrate -path=/migrations -database "$DB_URL" down
+
+# Создание новой миграции
+docker-compose run --rm migrate create -ext sql -dir /migrations -seq migration_name
 ```
 
 ## Backup и Recovery
@@ -268,10 +389,13 @@ docker-compose run --rm migrate -path=/migrations -database "$DB_URL" down
 ### PostgreSQL Backup
 ```bash
 # Создание бэкапа
-docker-compose exec postgres pg_dump -U hamuser hamradio > backup.sql
+docker-compose exec postgres pg_dump -U hamuser hamradio > backup_$(date +%Y%m%d_%H%M%S).sql
 
 # Восстановление из бэкапа
 docker-compose exec -T postgres psql -U hamuser hamradio < backup.sql
+
+# Автоматические бэкапы с retention
+docker-compose exec postgres pg_dump -U hamuser -Fc hamradio > backup_$(date +%Y%m%d_%H%M%S).dump
 ```
 
 ### Redis Backup
@@ -280,7 +404,12 @@ docker-compose exec -T postgres psql -U hamuser hamradio < backup.sql
 docker-compose exec redis redis-cli SAVE
 
 # Копирование файла
-docker cp ham-radio-qso-journal_redis_1:/data/dump.rdb .
+docker cp rd2w-log_redis_1:/data/dump.rdb dump_$(date +%Y%m%d_%H%M%S).rdb
+
+# Настройка автоматических бэкапов в redis.conf
+save 900 1
+save 300 10
+save 60 10000
 ```
 
 ## Troubleshooting
@@ -295,6 +424,9 @@ docker-compose logs auth-service
 
 # Логи в реальном времени
 docker-compose logs -f qso-service
+
+# Логи с фильтрацией по уровню
+docker-compose logs --tail=100 auth-service | grep "ERROR"
 ```
 
 ### Проверка здоровья
@@ -307,10 +439,15 @@ docker-compose exec postgres pg_isready -U hamuser
 
 # Проверка Redis
 docker-compose exec redis redis-cli ping
+
+# Проверка gRPC сервисов
+grpcurl -plaintext localhost:50051 list
 ```
 
 ### Распространенные проблемы
 
-1. **Port conflicts** - проверить что порты 8080, 5432, 6379 свободны
+1. **Port conflicts** - проверить что порты 8080, 5432, 6379, 50051-50053 свободны
 2. **Memory issues** - увеличьте лимиты памяти в Docker
 3. **Database connection** - проверить credentials в environment variables
+4. **Protobuf generation** - убедиться что protoc и плагины установлены правильно
+5. **JWT secret** - использовать надежный JWT секрет в production
