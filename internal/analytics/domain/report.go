@@ -52,11 +52,11 @@ func NewReportRequest(userID uuid.UUID, reportType ReportType, format ReportForm
 }
 
 func (r *ReportRequest) Validate() error {
-	if !isValidReportType(r.Type) {
+	if !IsValidReportType(r.Type) {
 		return ErrInvalidReportType
 	}
 
-	if !isValidReportFormat(r.Format) {
+	if !IsValidReportFormat(r.Format) {
 		return ErrInvalidReportFormat
 	}
 
@@ -67,7 +67,7 @@ func (r *ReportRequest) Validate() error {
 	return nil
 }
 
-func isValidReportType(t ReportType) bool {
+func IsValidReportType(t ReportType) bool {
 	switch t {
 	case ReportTypeDXCC, ReportTypeAwards, ReportTypeContest, ReportTypeCustom:
 		return true
@@ -76,7 +76,7 @@ func isValidReportType(t ReportType) bool {
 	}
 }
 
-func isValidReportFormat(f ReportFormat) bool {
+func IsValidReportFormat(f ReportFormat) bool {
 	switch f {
 	case ReportFormatPDF, ReportFormatCSV, ReportFormatHTML, ReportFormatJSON:
 		return true

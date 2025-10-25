@@ -47,12 +47,8 @@ func (f *Filter) WithDateRange(dateFrom, dateTo time.Time) *Filter {
 }
 
 func (f *Filter) WithPagination(page, limit int) *Filter {
-	if page > 0 {
-		f.Page = page
-	}
-	if limit > 0 && limit <= 1000 {
-		f.Limit = limit
-	}
+	f.Page = page
+	f.Limit = limit
 	return f
 }
 
