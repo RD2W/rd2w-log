@@ -1,0 +1,23 @@
+app_name: "analytics-service"
+env: "development"
+log_level: "info"
+
+grpc_port: "50053"
+
+postgres:
+  host: "localhost"
+  port: "5432"
+  user: "hamuser"
+  password: "hampass"
+  db_name: "hamradio"
+  ssl_mode: "disable"
+
+cache_enabled: true
+cache_ttl: "1h"
+stats_update_interval: "5m"
+report_generation_timeout: "10m"
+max_report_size: 10000
+
+shutdown:
+  timeout: "30s"
+  wait: "5s"

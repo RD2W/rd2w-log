@@ -1,0 +1,38 @@
+app_name: "api-gateway"
+env: "development"
+log_level: "debug"
+
+http_port: "8080"
+
+services:
+  auth_service_url: "localhost:50051"
+  qso_service_url: "localhost:50052"
+  analytics_service_url: "localhost:50053"
+
+cors_allowed_origins:
+  - "http://localhost:3000"
+  - "http://127.0.0.1:3000"
+  - "http://localhost:5173"
+
+rate_limit_per_minute: 1000  # Высокий лимит для разработки
+enable_swagger: true
+timeout: 60  # Увеличенный timeout для отладки
+
+shutdown:
+  timeout: "45s"
+  wait: "3s"
+
+middleware:
+  auth:
+    enabled: true
+    header_name: "Authorization"
+    exclude_paths:
+      - "/api/v1/auth/login"
+      - "/api/v1/auth/register"
+      - "/api/v1/health"
+      - "/swagger/*"
+
+grpc_clients:
+  timeout: "30s"
+  retries: 3
+  health_check_interval: "30s"

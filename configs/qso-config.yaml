@@ -1,0 +1,36 @@
+app_name: "qso-service"
+env: "development"
+log_level: "info"
+
+grpc_port: "50052"
+
+postgres:
+  host: "localhost"
+  port: "5432"
+  user: "hamuser"
+  password: "hampass"
+  db_name: "hamradio"
+  ssl_mode: "disable"
+
+redis:
+  url: "redis://localhost:6379"
+  password: ""
+  db: 0
+
+max_qsos_per_page: 100
+enable_caching: true
+cache_ttl: 300
+export_batch_size: 1000
+import_concurrency: 5
+
+shutdown:
+  timeout: "40s"  # Больше времени для завершения операций с БД
+  wait: "5s"
+
+adif:
+  max_file_size: "10MB"
+  default_encoding: "UTF-8"
+
+search:
+  max_results: 1000
+  default_time_range: "30d"

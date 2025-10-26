@@ -1,0 +1,36 @@
+app_name: "auth-service"
+env: "development"
+log_level: "info"
+
+grpc_port: "50051"
+
+postgres:
+  host: "localhost"
+  port: "5432"
+  user: "hamuser"
+  password: "hampass"
+  db_name: "hamradio"
+  ssl_mode: "disable"
+
+redis:
+  url: "redis://localhost:6379"
+  password: ""
+  db: 0
+
+jwt:
+  secret: "your-auth-secret-key-change-in-production"
+  access_token_ttl: "15m"
+  refresh_token_ttl: "168h"
+  issuer: "ham-radio-auth"
+
+password_min_length: 8
+max_login_attempts: 5
+login_block_time: "30m"
+
+shutdown:
+  timeout: "25s"
+  wait: "3s"
+
+security:
+  bcrypt_cost: 10
+  token_cleanup_interval: "1h"
