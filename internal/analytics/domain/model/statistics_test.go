@@ -1,18 +1,18 @@
-package domain_test
+package model_test
 
 import (
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/rd2w/rd2w-log/internal/analytics/domain"
+	"github.com/rd2w/rd2w-log/internal/analytics/domain/model"
 	"github.com/stretchr/testify/assert"
 	_ "github.com/stretchr/testify/require"
 )
 
 func TestNewStatistics(t *testing.T) {
 	userID := uuid.New()
-	stats := domain.NewStatistics(userID)
+	stats := model.NewStatistics(userID)
 
 	assert.Equal(t, userID, stats.UserID)
 	assert.Equal(t, 0, stats.TotalQSO)
@@ -28,7 +28,7 @@ func TestNewStatistics(t *testing.T) {
 
 func TestStatistics_AddQSO(t *testing.T) {
 	userID := uuid.New()
-	stats := domain.NewStatistics(userID)
+	stats := model.NewStatistics(userID)
 
 	// Add first QSO
 	stats.AddQSO("20m", "SSB", "EU")
@@ -62,7 +62,7 @@ func TestStatistics_AddQSO(t *testing.T) {
 
 func TestStatistics_AddDailyCount(t *testing.T) {
 	userID := uuid.New()
-	stats := domain.NewStatistics(userID)
+	stats := model.NewStatistics(userID)
 
 	// Valid indices
 	stats.AddDailyCount(0, 5)
@@ -78,7 +78,7 @@ func TestStatistics_AddDailyCount(t *testing.T) {
 
 func TestStatistics_SetUniqueEntities(t *testing.T) {
 	userID := uuid.New()
-	stats := domain.NewStatistics(userID)
+	stats := model.NewStatistics(userID)
 
 	stats.SetUniqueEntities(25, 50)
 	assert.Equal(t, 25, stats.UniqueCountries)
@@ -89,19 +89,19 @@ func TestStatistics_UpdateMostActive(t *testing.T) {
 	userID := uuid.New()
 
 	// Test empty statistics
-	stats := domain.NewStatistics(userID)
+	stats := model.NewStatistics(userID)
 	stats.AddQSO("", "", "") // This will trigger updateMostActive internally
 	assert.Equal(t, "", stats.MostActiveBand)
 	assert.Equal(t, "", stats.MostActiveMode)
 
 	// Test single band/mode
-	stats = domain.NewStatistics(userID)
+	stats = model.NewStatistics(userID)
 	stats.AddQSO("20m", "SSB", "EU")
 	assert.Equal(t, "20m", stats.MostActiveBand)
 	assert.Equal(t, "SSB", stats.MostActiveMode)
 
 	// Test multiple bands - 20m should remain most active
-	stats = domain.NewStatistics(userID)
+	stats = model.NewStatistics(userID)
 	stats.AddQSO("20m", "SSB", "EU")
 	stats.AddQSO("20m", "SSB", "EU")
 	stats.AddQSO("40m", "CW", "NA")
@@ -109,7 +109,7 @@ func TestStatistics_UpdateMostActive(t *testing.T) {
 	assert.Equal(t, "SSB", stats.MostActiveMode) // SSB has 2, CW has 1
 
 	// Test when new band becomes most active
-	stats = domain.NewStatistics(userID)
+	stats = model.NewStatistics(userID)
 	stats.AddQSO("20m", "SSB", "EU")
 	stats.AddQSO("40m", "CW", "NA")
 	stats.AddQSO("40m", "CW", "NA")
@@ -166,7 +166,7 @@ func TestStatistics_FindMaxKeyBehavior(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			stats := domain.NewStatistics(userID)
+			stats := model.NewStatistics(userID)
 
 			for _, qso := range tt.addQSOs {
 				stats.AddQSO(qso.band, qso.mode, qso.continent)
@@ -183,7 +183,7 @@ func TestStatistics_TieBehavior(t *testing.T) {
 
 	// When there's a tie, the result is non-deterministic due to random map iteration in Go.
 	// However, we can verify that one of the leaders is selected and counters are correct.
-	stats := domain.NewStatistics(userID)
+	stats := model.NewStatistics(userID)
 
 	// Create a tie situation - both bands and modes have 2 QSOs each
 	stats.AddQSO("20m", "SSB", "EU")
@@ -206,7 +206,7 @@ func TestStatistics_TieBehavior(t *testing.T) {
 func TestStatistics_GeneratedAt(t *testing.T) {
 	userID := uuid.New()
 	before := time.Now()
-	stats := domain.NewStatistics(userID)
+	stats := model.NewStatistics(userID)
 	after := time.Now()
 
 	assert.True(t, stats.GeneratedAt.After(before) || stats.GeneratedAt.Equal(before))

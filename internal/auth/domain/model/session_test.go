@@ -1,11 +1,11 @@
-package domain_test
+package model_test
 
 import (
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/rd2w/rd2w-log/internal/auth/domain"
+	"github.com/rd2w/rd2w-log/internal/auth/domain/model"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -15,7 +15,7 @@ func TestNewSession(t *testing.T) {
 	refreshToken := "refresh_token"
 	expiresAt := time.Now().Add(24 * time.Hour)
 
-	session := domain.NewSession(userID, accessToken, refreshToken, expiresAt)
+	session := model.NewSession(userID, accessToken, refreshToken, expiresAt)
 
 	assert.NotNil(t, session)
 	assert.NotEmpty(t, session.ID)
@@ -30,24 +30,24 @@ func TestSession_IsExpired(t *testing.T) {
 	userID := uuid.New()
 
 	t.Run("not expired", func(t *testing.T) {
-		session := domain.NewSession(userID, "token", "refresh", time.Now().Add(time.Hour))
+		session := model.NewSession(userID, "token", "refresh", time.Now().Add(time.Hour))
 		assert.False(t, session.IsExpired())
 	})
 
 	t.Run("expired", func(t *testing.T) {
-		session := domain.NewSession(userID, "token", "refresh", time.Now().Add(-time.Hour))
+		session := model.NewSession(userID, "token", "refresh", time.Now().Add(-time.Hour))
 		assert.True(t, session.IsExpired())
 	})
 
 	t.Run("just expired", func(t *testing.T) {
-		session := domain.NewSession(userID, "token", "refresh", time.Now().Add(-time.Second))
+		session := model.NewSession(userID, "token", "refresh", time.Now().Add(-time.Second))
 		assert.True(t, session.IsExpired())
 	})
 }
 
 func TestSession_Refresh(t *testing.T) {
 	userID := uuid.New()
-	session := domain.NewSession(userID, "old_token", "refresh", time.Now().Add(time.Hour))
+	session := model.NewSession(userID, "old_token", "refresh", time.Now().Add(time.Hour))
 
 	oldExpiresAt := session.ExpiresAt
 	newToken := "new_token"

@@ -1,11 +1,11 @@
-package domain_test
+package model_test
 
 import (
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/rd2w/rd2w-log/internal/qso/domain"
+	"github.com/rd2w/rd2w-log/internal/qso/domain/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -14,8 +14,8 @@ func TestNewQSO(t *testing.T) {
 	userID := uuid.New()
 	timeOn := time.Now()
 
-	validQSO := func() *domain.QSO {
-		qso, err := domain.NewQSO(
+	validQSO := func() *model.QSO {
+		qso, err := model.NewQSO(
 			userID,
 			"UA3ABC",
 			timeOn,
@@ -48,7 +48,7 @@ func TestNewQSO(t *testing.T) {
 	})
 
 	t.Run("invalid callsign", func(t *testing.T) {
-		_, err := domain.NewQSO(
+		_, err := model.NewQSO(
 			userID,
 			"",
 			timeOn,
@@ -63,7 +63,7 @@ func TestNewQSO(t *testing.T) {
 	})
 
 	t.Run("invalid time", func(t *testing.T) {
-		_, err := domain.NewQSO(
+		_, err := model.NewQSO(
 			userID,
 			"UA3ABC",
 			time.Time{},
@@ -78,7 +78,7 @@ func TestNewQSO(t *testing.T) {
 	})
 
 	t.Run("invalid band", func(t *testing.T) {
-		_, err := domain.NewQSO(
+		_, err := model.NewQSO(
 			userID,
 			"UA3ABC",
 			timeOn,
@@ -93,7 +93,7 @@ func TestNewQSO(t *testing.T) {
 	})
 
 	t.Run("invalid mode", func(t *testing.T) {
-		_, err := domain.NewQSO(
+		_, err := model.NewQSO(
 			userID,
 			"UA3ABC",
 			timeOn,
@@ -110,7 +110,7 @@ func TestNewQSO(t *testing.T) {
 
 func TestQSO_UpdateDetails(t *testing.T) {
 	userID := uuid.New()
-	qso, err := domain.NewQSO(
+	qso, err := model.NewQSO(
 		userID,
 		"UA3ABC",
 		time.Now(),
@@ -150,7 +150,7 @@ func TestQSO_UpdateDetails(t *testing.T) {
 func TestQSO_SetTimeOff(t *testing.T) {
 	userID := uuid.New()
 	timeOn := time.Now()
-	qso, err := domain.NewQSO(
+	qso, err := model.NewQSO(
 		userID,
 		"UA3ABC",
 		timeOn,
@@ -182,7 +182,7 @@ func TestQSO_SetTimeOff(t *testing.T) {
 
 func TestQSO_SetQSLInfo(t *testing.T) {
 	userID := uuid.New()
-	qso, err := domain.NewQSO(
+	qso, err := model.NewQSO(
 		userID,
 		"UA3ABC",
 		time.Now(),
@@ -196,7 +196,7 @@ func TestQSO_SetQSLInfo(t *testing.T) {
 
 	assert.Nil(t, qso.QSL)
 
-	qslInfo := domain.NewQSLInfo(qso.ID)
+	qslInfo := model.NewQSLInfo(qso.ID)
 	qso.SetQSLInfo(qslInfo)
 
 	assert.NotNil(t, qso.QSL)

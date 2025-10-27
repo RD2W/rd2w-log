@@ -1,10 +1,10 @@
-package domain_test
+package model_test
 
 import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/rd2w/rd2w-log/internal/analytics/domain"
+	"github.com/rd2w/rd2w-log/internal/analytics/domain/model"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -12,7 +12,7 @@ func TestNewActivityHeatmap(t *testing.T) {
 	userID := uuid.New()
 	period := "7d"
 
-	heatmap := domain.NewActivityHeatmap(userID, period)
+	heatmap := model.NewActivityHeatmap(userID, period)
 
 	assert.NotNil(t, heatmap)
 	assert.Equal(t, userID, heatmap.UserID)
@@ -23,7 +23,7 @@ func TestNewActivityHeatmap(t *testing.T) {
 
 func TestActivityHeatmap_AddActivityPoint(t *testing.T) {
 	userID := uuid.New()
-	heatmap := domain.NewActivityHeatmap(userID, "7d")
+	heatmap := model.NewActivityHeatmap(userID, "7d")
 
 	// Add first activity point
 	heatmap.AddActivityPoint("14:00", "20m", 5)
@@ -49,7 +49,7 @@ func TestActivityHeatmap_AddActivityPoint(t *testing.T) {
 
 func TestActivityHeatmap_GetTotalActivity(t *testing.T) {
 	userID := uuid.New()
-	heatmap := domain.NewActivityHeatmap(userID, "7d")
+	heatmap := model.NewActivityHeatmap(userID, "7d")
 
 	// Test empty heatmap
 	total := heatmap.GetTotalActivity()
@@ -79,7 +79,7 @@ func TestActivityHeatmap_GetTotalActivity(t *testing.T) {
 
 func TestActivityHeatmap_GetActivityByBand(t *testing.T) {
 	userID := uuid.New()
-	heatmap := domain.NewActivityHeatmap(userID, "7d")
+	heatmap := model.NewActivityHeatmap(userID, "7d")
 
 	// Setup test data
 	heatmap.AddActivityPoint("14:00", "20m", 5)
@@ -135,7 +135,7 @@ func TestActivityHeatmap_GetActivityByBand(t *testing.T) {
 
 func TestActivityHeatmap_MixedScenarios(t *testing.T) {
 	userID := uuid.New()
-	heatmap := domain.NewActivityHeatmap(userID, "30d")
+	heatmap := model.NewActivityHeatmap(userID, "30d")
 
 	// Test complex scenario with various data
 	testData := []struct {
@@ -178,7 +178,7 @@ func TestActivityHeatmap_MixedScenarios(t *testing.T) {
 
 func TestActivityHeatmap_EdgeCases(t *testing.T) {
 	userID := uuid.New()
-	heatmap := domain.NewActivityHeatmap(userID, "1d")
+	heatmap := model.NewActivityHeatmap(userID, "1d")
 
 	// Test empty strings
 	heatmap.AddActivityPoint("", "", 5)
@@ -205,7 +205,7 @@ func TestActivityHeatmap_EdgeCases(t *testing.T) {
 
 func TestActivityPoint_Structure(t *testing.T) {
 	// Test that ActivityPoint fields are properly exported and accessible
-	point := domain.ActivityPoint{
+	point := model.ActivityPoint{
 		Hour:  "14:00",
 		Band:  "20m",
 		Count: 5,

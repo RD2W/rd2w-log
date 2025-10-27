@@ -1,4 +1,4 @@
-package domain
+package model
 
 // TokenPair содержит пару access и refresh токенов
 type TokenPair struct {

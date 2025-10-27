@@ -1,11 +1,11 @@
-package domain_test
+package model_test
 
 import (
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/rd2w/rd2w-log/internal/qso/domain"
+	"github.com/rd2w/rd2w-log/internal/qso/domain/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -13,8 +13,8 @@ import (
 func TestNewStation(t *testing.T) {
 	userID := uuid.New()
 
-	validStation := func() *domain.Station {
-		station, err := domain.NewStation(
+	validStation := func() *model.Station {
+		station, err := model.NewStation(
 			userID,
 			"RD2W",
 			"Home Station",
@@ -48,7 +48,7 @@ func TestNewStation(t *testing.T) {
 	})
 
 	t.Run("invalid callsign", func(t *testing.T) {
-		_, err := domain.NewStation(
+		_, err := model.NewStation(
 			userID,
 			"", // empty callsign
 			"Home Station",
@@ -60,7 +60,7 @@ func TestNewStation(t *testing.T) {
 	})
 
 	t.Run("invalid name", func(t *testing.T) {
-		_, err := domain.NewStation(
+		_, err := model.NewStation(
 			userID,
 			"RD2W",
 			"", // empty name
@@ -72,7 +72,7 @@ func TestNewStation(t *testing.T) {
 	})
 
 	t.Run("valid with empty location and grid", func(t *testing.T) {
-		station, err := domain.NewStation(
+		station, err := model.NewStation(
 			userID,
 			"RD2W",
 			"Home Station",
@@ -88,12 +88,12 @@ func TestNewStation(t *testing.T) {
 func TestStation_Validate(t *testing.T) {
 	tests := []struct {
 		name    string
-		station *domain.Station
+		station *model.Station
 		wantErr bool
 	}{
 		{
 			name: "valid station",
-			station: &domain.Station{
+			station: &model.Station{
 				Callsign: "RD2W",
 				Name:     "Home Station",
 			},
@@ -101,7 +101,7 @@ func TestStation_Validate(t *testing.T) {
 		},
 		{
 			name: "empty callsign",
-			station: &domain.Station{
+			station: &model.Station{
 				Callsign: "",
 				Name:     "Home Station",
 			},
@@ -109,7 +109,7 @@ func TestStation_Validate(t *testing.T) {
 		},
 		{
 			name: "empty name",
-			station: &domain.Station{
+			station: &model.Station{
 				Callsign: "RD2W",
 				Name:     "",
 			},
@@ -117,7 +117,7 @@ func TestStation_Validate(t *testing.T) {
 		},
 		{
 			name: "both empty",
-			station: &domain.Station{
+			station: &model.Station{
 				Callsign: "",
 				Name:     "",
 			},
@@ -139,7 +139,7 @@ func TestStation_Validate(t *testing.T) {
 
 func TestStation_AddEquipment(t *testing.T) {
 	userID := uuid.New()
-	station, err := domain.NewStation(userID, "RD2W", "Home Station", "Location", "KO85")
+	station, err := model.NewStation(userID, "RD2W", "Home Station", "Location", "KO85")
 	require.NoError(t, err)
 
 	oldUpdatedAt := station.UpdatedAt
@@ -166,7 +166,7 @@ func TestStation_AddEquipment(t *testing.T) {
 
 func TestStation_AddAntenna(t *testing.T) {
 	userID := uuid.New()
-	station, err := domain.NewStation(userID, "RD2W", "Home Station", "Location", "KO85")
+	station, err := model.NewStation(userID, "RD2W", "Home Station", "Location", "KO85")
 	require.NoError(t, err)
 
 	oldUpdatedAt := station.UpdatedAt
@@ -193,7 +193,7 @@ func TestStation_AddAntenna(t *testing.T) {
 
 func TestStation_AddSupportedMode(t *testing.T) {
 	userID := uuid.New()
-	station, err := domain.NewStation(userID, "RD2W", "Home Station", "Location", "KO85")
+	station, err := model.NewStation(userID, "RD2W", "Home Station", "Location", "KO85")
 	require.NoError(t, err)
 
 	oldUpdatedAt := station.UpdatedAt
@@ -222,7 +222,7 @@ func TestStation_AddSupportedMode(t *testing.T) {
 
 func TestStation_AddSupportedBand(t *testing.T) {
 	userID := uuid.New()
-	station, err := domain.NewStation(userID, "RD2W", "Home Station", "Location", "KO85")
+	station, err := model.NewStation(userID, "RD2W", "Home Station", "Location", "KO85")
 	require.NoError(t, err)
 
 	oldUpdatedAt := station.UpdatedAt
@@ -251,7 +251,7 @@ func TestStation_AddSupportedBand(t *testing.T) {
 
 func TestStation_UpdateDetails(t *testing.T) {
 	userID := uuid.New()
-	station, err := domain.NewStation(
+	station, err := model.NewStation(
 		userID,
 		"RD2W",
 		"Old Name",
@@ -280,7 +280,7 @@ func TestStation_UpdateDetails(t *testing.T) {
 
 func TestStation_MultipleOperations(t *testing.T) {
 	userID := uuid.New()
-	station, err := domain.NewStation(userID, "RD2W", "Home Station", "Location", "KO85")
+	station, err := model.NewStation(userID, "RD2W", "Home Station", "Location", "KO85")
 	require.NoError(t, err)
 
 	// Perform multiple operations
@@ -302,7 +302,7 @@ func TestStation_MultipleOperations(t *testing.T) {
 
 func TestStation_DuplicateAdditions(t *testing.T) {
 	userID := uuid.New()
-	station, err := domain.NewStation(userID, "RD2W", "Home Station", "Location", "KO85")
+	station, err := model.NewStation(userID, "RD2W", "Home Station", "Location", "KO85")
 	require.NoError(t, err)
 
 	// Add duplicate equipment
@@ -324,7 +324,7 @@ func TestStation_DuplicateAdditions(t *testing.T) {
 
 func TestStation_EmptyStringAdditions(t *testing.T) {
 	userID := uuid.New()
-	station, err := domain.NewStation(userID, "RD2W", "Home Station", "Location", "KO85")
+	station, err := model.NewStation(userID, "RD2W", "Home Station", "Location", "KO85")
 	require.NoError(t, err)
 
 	// Add empty strings (should be allowed)

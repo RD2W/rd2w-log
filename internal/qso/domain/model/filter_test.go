@@ -1,18 +1,18 @@
-package domain_test
+package model_test
 
 import (
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/rd2w/rd2w-log/internal/qso/domain"
+	"github.com/rd2w/rd2w-log/internal/qso/domain/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
 func TestNewFilter(t *testing.T) {
 	userID := uuid.New()
-	filter := domain.NewFilter(userID)
+	filter := model.NewFilter(userID)
 
 	assert.Equal(t, userID, filter.UserID)
 	assert.Equal(t, 1, filter.Page)
@@ -29,7 +29,7 @@ func TestFilter_WithMethods(t *testing.T) {
 	dateFrom := time.Now().AddDate(0, -1, 0)
 	dateTo := time.Now()
 
-	filter := domain.NewFilter(userID).
+	filter := model.NewFilter(userID).
 		WithBand("20m").
 		WithMode("SSB").
 		WithCallsign("UA3ABC").
@@ -61,7 +61,7 @@ func TestFilter_Offset(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			userID := uuid.New()
-			filter := domain.NewFilter(userID).WithPagination(tt.page, tt.limit)
+			filter := model.NewFilter(userID).WithPagination(tt.page, tt.limit)
 			assert.Equal(t, tt.expected, filter.Offset())
 		})
 	}
@@ -72,21 +72,21 @@ func TestFilter_Validate(t *testing.T) {
 
 	tests := []struct {
 		name        string
-		setupFilter func() *domain.Filter
+		setupFilter func() *model.Filter
 		wantErr     bool
 		errContains string
 	}{
 		{
 			name: "valid filter",
-			setupFilter: func() *domain.Filter {
-				return domain.NewFilter(userID)
+			setupFilter: func() *model.Filter {
+				return model.NewFilter(userID)
 			},
 			wantErr: false,
 		},
 		{
 			name: "valid filter with date range",
-			setupFilter: func() *domain.Filter {
-				return domain.NewFilter(userID).
+			setupFilter: func() *model.Filter {
+				return model.NewFilter(userID).
 					WithDateRange(
 						time.Now().AddDate(0, -1, 0),
 						time.Now(),
@@ -96,8 +96,8 @@ func TestFilter_Validate(t *testing.T) {
 		},
 		{
 			name: "invalid date range",
-			setupFilter: func() *domain.Filter {
-				return domain.NewFilter(userID).
+			setupFilter: func() *model.Filter {
+				return model.NewFilter(userID).
 					WithDateRange(
 						time.Now(),
 						time.Now().AddDate(0, -1, 0),
@@ -108,55 +108,55 @@ func TestFilter_Validate(t *testing.T) {
 		},
 		{
 			name: "invalid page - zero",
-			setupFilter: func() *domain.Filter {
-				return domain.NewFilter(userID).WithPagination(0, 50)
+			setupFilter: func() *model.Filter {
+				return model.NewFilter(userID).WithPagination(0, 50)
 			},
 			wantErr:     true,
 			errContains: "invalid page",
 		},
 		{
 			name: "invalid page - negative",
-			setupFilter: func() *domain.Filter {
-				return domain.NewFilter(userID).WithPagination(-1, 50)
+			setupFilter: func() *model.Filter {
+				return model.NewFilter(userID).WithPagination(-1, 50)
 			},
 			wantErr:     true,
 			errContains: "invalid page",
 		},
 		{
 			name: "invalid limit - zero",
-			setupFilter: func() *domain.Filter {
-				return domain.NewFilter(userID).WithPagination(1, 0)
+			setupFilter: func() *model.Filter {
+				return model.NewFilter(userID).WithPagination(1, 0)
 			},
 			wantErr:     true,
 			errContains: "invalid limit",
 		},
 		{
 			name: "invalid limit - negative",
-			setupFilter: func() *domain.Filter {
-				return domain.NewFilter(userID).WithPagination(1, -5)
+			setupFilter: func() *model.Filter {
+				return model.NewFilter(userID).WithPagination(1, -5)
 			},
 			wantErr:     true,
 			errContains: "invalid limit",
 		},
 		{
 			name: "invalid limit - too large",
-			setupFilter: func() *domain.Filter {
-				return domain.NewFilter(userID).WithPagination(1, 1001)
+			setupFilter: func() *model.Filter {
+				return model.NewFilter(userID).WithPagination(1, 1001)
 			},
 			wantErr:     true,
 			errContains: "invalid limit",
 		},
 		{
 			name: "valid limit - boundary values",
-			setupFilter: func() *domain.Filter {
-				return domain.NewFilter(userID).WithPagination(1, 1) // min valid
+			setupFilter: func() *model.Filter {
+				return model.NewFilter(userID).WithPagination(1, 1) // min valid
 			},
 			wantErr: false,
 		},
 		{
 			name: "valid limit - max boundary",
-			setupFilter: func() *domain.Filter {
-				return domain.NewFilter(userID).WithPagination(1, 1000) // max valid
+			setupFilter: func() *model.Filter {
+				return model.NewFilter(userID).WithPagination(1, 1000) // max valid
 			},
 			wantErr: false,
 		},

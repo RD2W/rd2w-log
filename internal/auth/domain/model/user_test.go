@@ -1,10 +1,10 @@
-package domain_test
+package model_test
 
 import (
 	"testing"
 	"time"
 
-	"github.com/rd2w/rd2w-log/internal/auth/domain"
+	"github.com/rd2w/rd2w-log/internal/auth/domain/model"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -53,7 +53,7 @@ func TestNewUser(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			user, err := domain.NewUser(tt.callsign, tt.email, tt.password, "Test User", "Location", "UTC")
+			user, err := model.NewUser(tt.callsign, tt.email, tt.password, "Test User", "Location", "UTC")
 
 			if tt.wantErr {
 				require.Error(t, err)
@@ -77,7 +77,7 @@ func TestNewUser(t *testing.T) {
 }
 
 func TestUser_CheckPassword(t *testing.T) {
-	user, err := domain.NewUser("RD2W", "test@example.com", "securepassword123", "Test User", "Location", "UTC")
+	user, err := model.NewUser("RD2W", "test@example.com", "securepassword123", "Test User", "Location", "UTC")
 	require.NoError(t, err)
 
 	// Test correct password
@@ -91,7 +91,7 @@ func TestUser_CheckPassword(t *testing.T) {
 }
 
 func TestUser_UpdateProfile(t *testing.T) {
-	user, err := domain.NewUser("RD2W", "test@example.com", "securepassword123", "Old Name", "Old Location", "UTC")
+	user, err := model.NewUser("RD2W", "test@example.com", "securepassword123", "Old Name", "Old Location", "UTC")
 	require.NoError(t, err)
 
 	oldUpdatedAt := user.UpdatedAt
@@ -110,12 +110,12 @@ func TestUser_UpdateProfile(t *testing.T) {
 func TestUser_Validate(t *testing.T) {
 	tests := []struct {
 		name    string
-		user    *domain.User
+		user    *model.User
 		wantErr bool
 	}{
 		{
 			name: "valid user",
-			user: &domain.User{
+			user: &model.User{
 				Callsign: "RD2W",
 				Email:    "test@example.com",
 				Password: "hashedpassword",
@@ -124,7 +124,7 @@ func TestUser_Validate(t *testing.T) {
 		},
 		{
 			name: "empty callsign",
-			user: &domain.User{
+			user: &model.User{
 				Callsign: "",
 				Email:    "test@example.com",
 				Password: "hashedpassword",
@@ -133,7 +133,7 @@ func TestUser_Validate(t *testing.T) {
 		},
 		{
 			name: "empty email",
-			user: &domain.User{
+			user: &model.User{
 				Callsign: "RD2W",
 				Email:    "",
 				Password: "hashedpassword",
@@ -142,7 +142,7 @@ func TestUser_Validate(t *testing.T) {
 		},
 		{
 			name: "empty password",
-			user: &domain.User{
+			user: &model.User{
 				Callsign: "RD2W",
 				Email:    "test@example.com",
 				Password: "",

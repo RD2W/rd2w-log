@@ -1,17 +1,17 @@
-package domain_test
+package model_test
 
 import (
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/rd2w/rd2w-log/internal/qso/domain"
+	"github.com/rd2w/rd2w-log/internal/qso/domain/model"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNewQSLInfo(t *testing.T) {
 	qsoID := uuid.New()
-	qslInfo := domain.NewQSLInfo(qsoID)
+	qslInfo := model.NewQSLInfo(qsoID)
 
 	assert.NotNil(t, qslInfo)
 	assert.NotEmpty(t, qslInfo.ID)
@@ -28,7 +28,7 @@ func TestNewQSLInfo(t *testing.T) {
 
 func TestQSLInfo_MarkSent(t *testing.T) {
 	qsoID := uuid.New()
-	qslInfo := domain.NewQSLInfo(qsoID)
+	qslInfo := model.NewQSLInfo(qsoID)
 
 	oldUpdatedAt := qslInfo.UpdatedAt
 	sentDate := time.Now()
@@ -47,7 +47,7 @@ func TestQSLInfo_MarkSent(t *testing.T) {
 
 func TestQSLInfo_MarkReceived(t *testing.T) {
 	qsoID := uuid.New()
-	qslInfo := domain.NewQSLInfo(qsoID)
+	qslInfo := model.NewQSLInfo(qsoID)
 
 	oldUpdatedAt := qslInfo.UpdatedAt
 	receivedDate := time.Now()
@@ -67,20 +67,20 @@ func TestQSLInfo_MarkReceived(t *testing.T) {
 func TestQSLInfo_Validate(t *testing.T) {
 	t.Run("valid empty QSL", func(t *testing.T) {
 		qsoID := uuid.New()
-		qslInfo := domain.NewQSLInfo(qsoID)
+		qslInfo := model.NewQSLInfo(qsoID)
 		assert.NoError(t, qslInfo.Validate())
 	})
 
 	t.Run("valid sent QSL", func(t *testing.T) {
 		qsoID := uuid.New()
-		qslInfo := domain.NewQSLInfo(qsoID)
+		qslInfo := model.NewQSLInfo(qsoID)
 		qslInfo.MarkSent("Bureau", time.Now())
 		assert.NoError(t, qslInfo.Validate())
 	})
 
 	t.Run("invalid sent without via", func(t *testing.T) {
 		qsoID := uuid.New()
-		qslInfo := domain.NewQSLInfo(qsoID)
+		qslInfo := model.NewQSLInfo(qsoID)
 		qslInfo.Sent = true
 		qslInfo.SentVia = ""
 		assert.Error(t, qslInfo.Validate())
@@ -89,7 +89,7 @@ func TestQSLInfo_Validate(t *testing.T) {
 
 	t.Run("invalid received without via", func(t *testing.T) {
 		qsoID := uuid.New()
-		qslInfo := domain.NewQSLInfo(qsoID)
+		qslInfo := model.NewQSLInfo(qsoID)
 		qslInfo.Received = true
 		qslInfo.ReceivedVia = ""
 		assert.Error(t, qslInfo.Validate())
